@@ -1,23 +1,27 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    colmena.url = "github:zhaofengli/colmena";
     disko.url = "github:nix-community/disko";
-    disko.inputs.nixpkgs.follows = "nixpkgs";
   };
-
   outputs =
     {
+      self,
       nixpkgs,
+      colmena,
       disko,
       ...
     }:
     {
-      nixosConfigurations.hetzner-cloud = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          disko.nixosModules.disko
-          ./configuration.nix
-        ];
+      colmenaHive = colmena.lib.makeHive {
+        meta = {
+          nixpkgs = import nixpkgs {
+            system = "x86_64-linux";
+            overlays = [ ];
+          };
+        };
+
+        nice = import ./configuration.nix disko;
       };
     };
 }

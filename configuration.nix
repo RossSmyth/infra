@@ -1,3 +1,4 @@
+disko:
 {
   modulesPath,
   lib,
@@ -6,7 +7,12 @@
   ...
 }@args:
 {
+  deployment = {
+    targetHost = "5.161.62.85";
+    targetUser = "rsmyth";
+  };
   imports = [
+    disko.nixosModules.disko
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
     ./disk-config.nix
@@ -62,7 +68,6 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOSGfZFizgtHFeI/2khK3PTld8wnn2NiEG29yY3jXNk6 rsmyth@desktop"
     ];
-
     extraGroups = [
       "wheel"
       "input"
@@ -70,5 +75,18 @@
       "docker"
     ];
   };
+
+  containers.wasabi = {
+    ephemeral = true;
+    autoStart = true;
+    config =
+      { ... }:
+      {
+        services.httpd.enable = true;
+        services.httpd.adminAddr = "foo@example.org";
+        networking.firewall.allowedTCPPorts = [ 80 ];
+      };
+  };
+
   system.stateVersion = "24.05";
 }
