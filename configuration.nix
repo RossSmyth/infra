@@ -18,6 +18,16 @@ disko:
     ./disk-config.nix
   ];
 
+  services.resolved = {
+    enable = true;
+    fallbackDns = [
+      "2606:4700:4700::1111"
+      "1.1.1.1"
+      "2001:4860:4860::8888"
+      "8.8.8.8"
+    ];
+  };
+
   i18n.defaultLocale = "en_US.UTF-8";
   time.timeZone = "America/Detroit";
   systemd.coredump.enable = true;
@@ -124,8 +134,11 @@ disko:
     hostAddress = "192.168.100.2";
     localAddress = "192.168.100.22";
     config =
-      { ... }:
+      { lib, ... }:
       {
+        networking.useHostResolvConf = lib.mkForce false;
+        services.resolved.enable = true;
+
         networking.firewall.allowedTCPPorts = [
           80
           443
