@@ -137,7 +137,6 @@ disko:
           enable = true;
           settings.global = {
             address = "192.168.100.22";
-            allow_registration = true;
             database_backend = "rocksdb";
             port = 6167;
             server_name = "matrix.treefroog.com";
