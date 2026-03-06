@@ -20,7 +20,7 @@ disko:
 
   services.resolved = {
     enable = true;
-    fallbackDns = [
+    settings.Resolve.FallbackDNS = [
       "2606:4700:4700::1111"
       "1.1.1.1"
       "2001:4860:4860::8888"
@@ -50,7 +50,16 @@ disko:
     efiSupport = true;
     efiInstallAsRemovable = true;
   };
-  services.openssh.enable = true;
+
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "no";
+      AllowUsers = [ "rsmyth" ];
+    };
+  };
 
   environment.systemPackages = map lib.lowPrio [
     pkgs.curl
@@ -93,7 +102,7 @@ disko:
       8448
     ];
     nat.enable = true;
-    nat.internalInterfaces = [ "ve-wasabi" ];
+    nat.internalInterfaces = [ "ve-nice" ];
     nat.externalInterface = "enp1s0";
   };
 
@@ -113,7 +122,7 @@ disko:
     };
   };
 
-  containers.wasabi = {
+  containers.test = {
     ephemeral = true;
     autoStart = true;
     privateNetwork = true;
@@ -122,6 +131,8 @@ disko:
     config =
       { ... }:
       {
+        system.stateVersion = "24.05";
+
         services.httpd.enable = true;
         services.httpd.adminAddr = "foo@example.org";
         networking.firewall.allowedTCPPorts = [ 80 ];
@@ -136,6 +147,8 @@ disko:
     config =
       { lib, ... }:
       {
+        system.stateVersion = "24.05";
+
         networking.useHostResolvConf = lib.mkForce false;
         services.resolved.enable = true;
 
