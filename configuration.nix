@@ -8,7 +8,7 @@ disko:
 }@args:
 {
   deployment = {
-    targetHost = "5.161.62.85";
+    targetHost = "2a01:4ff:f0:4773::";
     targetUser = "rsmyth";
   };
   imports = [
@@ -101,11 +101,14 @@ disko:
       matchConfig.Name = "enp1s0";
       networkConfig.DHCP = "no";
       address = [
-          "5.161.62.85/32"
-          "2a01:4ff:f0:4773::/64"
+        "5.161.62.85/32"
+        "2a01:4ff:f0:4773::/64"
       ];
       routes = [
-        { Gateway = "172.31.1.1"; GatewayOnLink = true; }
+        {
+          Gateway = "172.31.1.1";
+          GatewayOnLink = true;
+        }
         { Gateway = "fe80::1"; }
       ];
     };
