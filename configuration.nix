@@ -76,9 +76,31 @@ disko:
     ];
   };
 
+  networking = {
+    firewall.allowedTCPPorts = [
+      80
+      443
+    ];
+    nat.enable = true;
+    nat.internalInterfaces = [ "ve-wasabi" ];
+    nat.externalInterface = "enp1s0";
+  };
+
+  services.caddy = {
+    enable = true;
+    virtualHosts = {
+      "test.treefroog.com".extraConfig = ''
+        reverse_proxy http://192.168.100.11
+      '';
+    };
+  };
+
   containers.wasabi = {
     ephemeral = true;
     autoStart = true;
+    privateNetwork = true;
+    hostAddress = "192.168.100.2";
+    localAddress = "192.168.100.11";
     config =
       { ... }:
       {
