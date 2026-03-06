@@ -80,6 +80,7 @@ disko:
     firewall.allowedTCPPorts = [
       80
       443
+      8448
     ];
     nat.enable = true;
     nat.internalInterfaces = [ "ve-wasabi" ];
@@ -91,6 +92,13 @@ disko:
     virtualHosts = {
       "test.treefroog.com".extraConfig = ''
         reverse_proxy http://192.168.100.11
+      '';
+
+      "matrix.treefroog.com".extraConfig = ''
+        reverse_proxy /_matrix/* 192.168.100.22:6167
+      '';
+      "matrix.treefroog.com:8448".extraConfig = ''
+        reverse_proxy /_matrix/* 192.168.100.22:6167
       '';
     };
   };
@@ -107,6 +115,34 @@ disko:
         services.httpd.enable = true;
         services.httpd.adminAddr = "foo@example.org";
         networking.firewall.allowedTCPPorts = [ 80 ];
+      };
+  };
+
+  containers.matrix = {
+    autoStart = true;
+    privateNetwork = true;
+    hostAddress = "192.168.100.2";
+    localAddress = "192.168.100.22";
+    config =
+      { ... }:
+      {
+        networking.firewall.allowedTCPPorts = [
+          80
+          443
+          8448
+          6167
+        ];
+
+        services.matrix-conduit = {
+          enable = true;
+          settings.global = {
+            address = "192.168.100.22";
+            allow_registration = true;
+            database_backend = "rocksdb";
+            port = 6167;
+            server_name = "matrix.treefroog.com";
+          };
+        };
       };
   };
 
