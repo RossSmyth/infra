@@ -1,4 +1,4 @@
-disko:
+{ disko, nspawn }:
 {
   modulesPath,
   lib,
@@ -12,6 +12,7 @@ disko:
     targetUser = "rsmyth";
   };
   imports = [
+    nspawn.nixosModules.default
     disko.nixosModules.disko
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
@@ -129,7 +130,7 @@ disko:
     enable = true;
     virtualHosts = {
       "test.treefroog.com".extraConfig = ''
-        reverse_proxy http://192.168.100.11
+        reverse_proxy http://test
       '';
 
       "matrix.treefroog.com".extraConfig = ''
@@ -141,12 +142,24 @@ disko:
     };
   };
 
-  containers.test = {
-    ephemeral = true;
-    autoStart = true;
-    privateNetwork = true;
-    hostAddress = "192.168.100.2";
-    localAddress = "192.168.100.11";
+  virtualisation.nspawn.containers.test = {
+    network.veth.config = {
+      host.networkConfig = {
+        DHCP = false;
+        Address = [
+          "192.168.42.1/24"
+        ];
+      };
+      container.networkConfig = {
+        DHCP = false;
+        Address = [
+          "192.168.42.2/24"
+        ];
+        Gateway = [
+          "192.168.42.1"
+        ];
+      };
+    };
     config =
       { ... }:
       {
@@ -155,38 +168,6 @@ disko:
         services.httpd.enable = true;
         services.httpd.adminAddr = "foo@example.org";
         networking.firewall.allowedTCPPorts = [ 80 ];
-      };
-  };
-
-  containers.matrix = {
-    autoStart = true;
-    privateNetwork = true;
-    hostAddress = "192.168.100.2";
-    localAddress = "192.168.100.22";
-    config =
-      { lib, ... }:
-      {
-        system.stateVersion = "24.05";
-
-        networking.useHostResolvConf = lib.mkForce false;
-        services.resolved.enable = true;
-
-        networking.firewall.allowedTCPPorts = [
-          80
-          443
-          8448
-          6167
-        ];
-
-        services.matrix-conduit = {
-          enable = true;
-          settings.global = {
-            address = "192.168.100.22";
-            database_backend = "rocksdb";
-            port = 6167;
-            server_name = "matrix.treefroog.com";
-          };
-        };
       };
   };
 

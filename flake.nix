@@ -2,7 +2,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     colmena.url = "github:zhaofengli/colmena";
+    colmena.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+    nspawn.url = "github:RossSmyth/nixos-nspawn/update";
+    nspawn.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs =
     {
@@ -10,6 +14,7 @@
       nixpkgs,
       colmena,
       disko,
+      nspawn,
       ...
     }:
     {
@@ -21,7 +26,7 @@
           };
         };
 
-        nice = import ./configuration.nix disko;
+        nice = import ./configuration.nix { inherit disko nspawn; };
       };
     };
 }
